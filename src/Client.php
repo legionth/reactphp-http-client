@@ -6,8 +6,8 @@ use React\Promise\Promise;
 use React\EventLoop\LoopInterface;
 use React\SocketClient\Connector;
 use React\Socket\Connection;
-use Psr\Http\Message\RequestInterface;
 use React\SocketClient\ConnectorInterface;
+use Psr\Http\Message\RequestInterface;
 
 class Client
 {
@@ -86,7 +86,24 @@ class Client
                 };
 
                 $connection->on('data', $listener);
+                if (!$request->getBody() instanceof HttpBodyStream) {
+                    $request = $request->withHeader('Content-Length', (string)$request->getBody()->getSize());
+                    return $connection->write(\RingCentral\Psr7\str($request));
+                }
+
+                if (!$request->hasHeader('Content-Length') && $request->getProtocolVersion() === '1.1') {
+                    // assign chunked transfer-encoding if no 'content-length' is given for HTTP/1.1 responses
+                    $request = $request->withHeader('Transfer-Encoding', 'chunked');
+                }
+
+                $body = $request->getBody();
+                $stream = $body;
+                if ($request->getHeaderLine('Transfer-Encoding') === 'chunked') {
+                    $stream = new ChunkedEncoder($body);
+                }
+
                 $connection->write(\RingCentral\Psr7\str($request));
+                $stream->pipe($connection);
             },
             function (\Exception $ex) use ($reject) {
                 $reject($ex);

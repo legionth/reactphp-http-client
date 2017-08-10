@@ -10,8 +10,8 @@ $loop = React\EventLoop\Factory::create();
 
 $client = new Client($loop);
 
-$uri = 'tcp://httpbin.org:80';
-$request = new Request('GET', 'http://httpbin.org');
+$uri = 'tcp://127.0.0.1:10000';
+$request = new Request('GET', 'http://127.0.0.1:10000');
 
 $promise = $client->request($uri, $request);
 $promise->then(
