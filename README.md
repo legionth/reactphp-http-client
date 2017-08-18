@@ -4,6 +4,7 @@ HTTP client written in PHP on top of ReactPHP.
 
 **Table of Contents**
 * [Usage](#usage)
+  * [Request body](#request-body)
 * [Install](#install)
 * [License](#license)
 
@@ -71,6 +72,43 @@ $promise->then(
 The `end`-Event will be emmitted when the complete body of the HTTP response
 has been transferred to the client.
 In the example above it will exit the current script.
+
+### Request body
+
+You can add also add a [ReactPHP Stream](https://github.com/reactphp/stream) as
+the request body to stream data with it.
+The body will always be transferred chunked encoded if you use this method,
+any header like `Content-Length` or other `Transfer-Encoding` headers will
+be replaced.
+```php
+$stream = new ReadableStream();
+
+$timer = $loop->addPeriodicTimer(0.5, function () use ($stream) {
+    $stream->emit('data', array(microtime(true) . PHP_EOL));
+});
+
+$loop->addTimer(5, function() use ($loop, $timer, $stream) {
+    $loop->cancelTimer($timer);
+    $stream->emit('end');
+});
+
+$request = new Request(
+    'POST',
+    'http://127.0.0.1:10000',
+    array(
+        'Host' => '127.0.0.1',
+        'Content-Type' => 'text/plain'
+    ),
+    $stream
+);
+$promise = $client->request($uri, $request);
+```
+
+This example will transfer every 0.5 seconds a chunked encoded data to the
+server.
+The transmission of the body will end after 5 seconds.
+
+Checkout the `examples` folder to try it yourself.
 
 ## Install
 
