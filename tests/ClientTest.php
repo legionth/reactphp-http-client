@@ -5,7 +5,6 @@ use React\SocketClient\ConnectorInterface;
 use RingCentral\Psr7\Request;
 use React\Promise\Promise;
 use Psr\Http\Message\ResponseInterface;
-use function RingCentral\Psr7\str;
 
 class ClientTest extends TestCase
 {
@@ -57,7 +56,7 @@ class ClientTest extends TestCase
 
         $responsePromise = $client->request($this->uri, new Request('GET', 'http://reactphp.org'));
 
-        $this->assertInstanceOf(Promise::class, $responsePromise);
+        $this->assertInstanceOf('React\Promise\Promise', $responsePromise);
     }
 
     public function testClientRequestWillResultInResponse()
@@ -72,7 +71,7 @@ class ClientTest extends TestCase
         $data = '';
         $responsePromise = $client->request($this->uri, new Request('GET', 'http://reactphp.org'));
         $responsePromise->then(function (ResponseInterface $response) use (&$data) {
-            $data = str($response);
+            $data = \RingCentral\Psr7\str($response);
         });
 
         $this->connection->emit('data', array("HTTP/1.1 200 OK\r\n\r\n"));
@@ -147,7 +146,7 @@ class ClientTest extends TestCase
         );
 
         $this->connection->emit('data', array("HTTP/1.1 200 OK\r\nContent-Length: bla\r\n\r\nhello"));
-        $this->assertInstanceOf(InvalidArgumentException::class, $result);
+        $this->assertInstanceOf('InvalidArgumentException', $result);
     }
 
     public function testInvalidTransferEncodingWillResultInInvalidException()
@@ -170,7 +169,7 @@ class ClientTest extends TestCase
         );
 
         $this->connection->emit('data', array("HTTP/1.1 200 OK\r\nTransfer-Encoding: bla\r\n\r\n5\r\nhello\r\n0\r\n\r\n"));
-        $this->assertInstanceOf(InvalidArgumentException::class, $result);
+        $this->assertInstanceOf('InvalidArgumentException', $result);
     }
 
     public function testFailingConnectionReturnsException()
@@ -199,7 +198,7 @@ class ClientTest extends TestCase
         );
 
         $this->connection->emit('data', array("HTTP/1.1 200 OK\r\n\r\n"));
-        $this->assertInstanceOf(Exception::class, $result);
+        $this->assertInstanceOf('Exception', $result);
     }
 
     public function testInvalidResponseResultsInException()
@@ -222,6 +221,6 @@ class ClientTest extends TestCase
         );
 
         $this->connection->emit('data', array("blaHTTP/1.1 200 OK\r\n\r\n"));
-        $this->assertInstanceOf(InvalidArgumentException::class, $result);
+        $this->assertInstanceOf('InvalidArgumentException', $result);
     }
 }
