@@ -4,9 +4,9 @@ namespace Legionth\React\Http;
 
 use React\Promise\Promise;
 use React\EventLoop\LoopInterface;
-use React\SocketClient\Connector;
+use React\Socket\Connector;
 use React\Socket\Connection;
-use React\SocketClient\ConnectorInterface;
+use React\Socket\ConnectorInterface;
 use Psr\Http\Message\RequestInterface;
 
 class Client

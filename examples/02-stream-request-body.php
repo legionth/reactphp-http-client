@@ -16,7 +16,7 @@ $loop = React\EventLoop\Factory::create();
 $client = new Client($loop);
 
 $uri = 'tcp://127.0.0.1:10000';
-$stream = new ReadableStream();
+$stream = new $stream = new \React\Stream\ReadableResourceStream(STDIN, $loop);
 
 $timer = $loop->addPeriodicTimer(0.5, function () use ($stream) {
     $stream->emit('data', array(microtime(true) . PHP_EOL));

@@ -6,11 +6,16 @@ use React\Stream\ReadableStream;
 class LengthLimitedStreamTest extends TestCase
 {
     private $input;
-    private $stream;
 
     public function setUp()
     {
-        $this->input = new ReadableStream();
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')
+            ->getMock();
+
+        $this->input = new \React\Stream\ReadableResourceStream(
+            fopen('php://temp', 'r+'),
+            $loop
+        );
     }
 
     public function testSimpleChunk()
@@ -53,7 +58,8 @@ class LengthLimitedStreamTest extends TestCase
 
     public function testPauseStream()
     {
-        $input = $this->getMockBuilder('React\Stream\ReadableStreamInterface')->getMock();
+        $input = $this->getMockBuilder('React\Stream\ReadableStreamInterface')
+            ->getMock();
         $input->expects($this->once())->method('pause');
 
         $stream = new LengthLimitedStream($input, 0);
@@ -62,7 +68,9 @@ class LengthLimitedStreamTest extends TestCase
 
     public function testResumeStream()
     {
-        $input = $this->getMockBuilder('React\Stream\ReadableStreamInterface')->getMock();
+        $input = $this->getMockBuilder('React\Stream\ReadableStreamInterface')
+            ->getMock();
+
         $input->expects($this->once())->method('pause');
 
         $stream = new LengthLimitedStream($input, 0);
@@ -93,15 +101,14 @@ class LengthLimitedStreamTest extends TestCase
 
     public function testOutputStreamCanCloseInputStream()
     {
-        $input = new ReadableStream();
-        $input->on('close', $this->expectCallableOnce());
+        $this->input->on('close', $this->expectCallableOnce());
 
-        $stream = new LengthLimitedStream($input, 0);
+        $stream = new LengthLimitedStream($this->input, 0);
         $stream->on('close', $this->expectCallableOnce());
 
         $stream->close();
 
-        $this->assertFalse($input->isReadable());
+        $this->assertFalse($this->input->isReadable());
     }
 
     public function testHandleUnexpectedEnd()
