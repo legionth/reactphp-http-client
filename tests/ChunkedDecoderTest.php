@@ -7,7 +7,14 @@ class ChunkedDecoderTest extends TestCase
 {
     public function setUp()
     {
-        $this->input = new ReadableStream();
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')
+            ->getMock();
+
+        $this->input = new \React\Stream\ReadableResourceStream(
+            fopen('php://temp', 'r+'),
+            $loop
+        );
+
         $this->parser = new ChunkedDecoder($this->input);
     }
 
@@ -384,7 +391,14 @@ class ChunkedDecoderTest extends TestCase
 
     public function testOutputStreamCanCloseInputStream()
     {
-        $input = new ReadableStream();
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')
+            ->getMock();
+
+        $input = new \React\Stream\ReadableResourceStream(
+            fopen('php://temp', 'r+'),
+            $loop
+        );
+
         $input->on('close', $this->expectCallableOnce());
 
         $stream = new ChunkedDecoder($input);

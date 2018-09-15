@@ -6,11 +6,19 @@ use React\Stream\ReadableStream;
 class HttpBodyStreamTest extends TestCase
 {
     private $input;
+
     private $bodyStream;
 
     public function setUp()
     {
-        $this->input = new ReadableStream();
+        $loop = $this->getMockBuilder('\React\EventLoop\LoopInterface')
+            ->getMock();
+
+        $this->input = new \React\Stream\ReadableResourceStream(
+            fopen('php://temp', 'r+'),
+            $loop
+        );
+
         $this->bodyStream = new HttpBodyStream($this->input, null);
     }
 

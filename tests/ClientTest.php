@@ -20,7 +20,7 @@ class ClientTest extends TestCase
         $this->uri = 'tcp://reactphp.org';
         $this->loop = new React\EventLoop\StreamSelectLoop();
 
-        $this->connector = $this->getMockBuilder('React\SocketClient\ConnectorInterface')
+        $this->connector = $this->getMockBuilder('React\Socket\ConnectorInterface')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -174,7 +174,7 @@ class ClientTest extends TestCase
 
     public function testFailingConnectionReturnsException()
     {
-        $connector = $this->getMockBuilder('React\SocketClient\ConnectorInterface')
+        $connector = $this->getMockBuilder('React\Socket\ConnectorInterface')
             ->disableOriginalConstructor()
             ->getMock();
 
